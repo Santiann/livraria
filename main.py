@@ -20,11 +20,29 @@ conn.commit()
 def adicionar_livro():
     titulo = input("Título do livro: ")
     autor = input("Autor: ")
-    ano = int(input("Ano de publicação: "))
-    preco = float(input("Preço: "))
 
+    while True:
+        try:
+            ano = int(input("Ano de publicação: "))
+            if ano > 2024:
+                print("O ano de publicação não pode ser no futuro.")
+            else:
+                break
+        except ValueError:
+            print("Por favor, insira um ano válido.")
+
+    while True:
+        try:
+            preco = float(input("Preço: "))
+            if preco < 0:
+                print("O preço deve ser positivo.")
+            else:
+                break
+        except ValueError:
+            print("Por favor, insira um valor de preço válido.")
+    
     cursor.execute("INSERT INTO livros (titulo, autor, ano_publicacao, preco) VALUES (?, ?, ?, ?)", 
-                    (titulo, autor, ano, preco))
+                    (titulo, autor.lower(), ano, preco))
     conn.commit()
     
     backup_database()
@@ -56,11 +74,16 @@ def remover_livro():
     print("Livro removido e backup criado.")
 
 def buscar_por_autor():
-    autor = input("Nome do autor: ")
+    autor = input("Nome do autor: ").lower()
     cursor.execute("SELECT * FROM livros WHERE autor LIKE ?", ('%' + autor + '%',))
     livros = cursor.fetchall()
-    for livro in livros:
-        print(livro)
+    
+    if livros:
+        for livro in livros:
+            print(livro)
+    else:
+        print(f"Nenhum livro encontrado para o autor: {autor}.")
+
 
 def menu():
     while True:
